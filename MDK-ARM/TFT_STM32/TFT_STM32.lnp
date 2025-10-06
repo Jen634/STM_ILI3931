@@ -1,8 +1,5 @@
 --cpu Cortex-M3
 "tft_stm32\startup_stm32f103xb.o"
-"tft_stm32\fonts.o"
-"tft_stm32\ili9341.o"
-"tft_stm32\ili9341_driver.o"
 "tft_stm32\main.o"
 "tft_stm32\stm32f1xx_it.o"
 "tft_stm32\stm32f1xx_hal_msp.o"

@@ -394,36 +394,6 @@
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
-              <FileName>fonts.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\fonts.h</FilePath>
-            </File>
-            <File>
-              <FileName>ILI9341.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\ILI9341.h</FilePath>
-            </File>
-            <File>
-              <FileName>ILI9341_DRIVER.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\ILI9341_DRIVER.h</FilePath>
-            </File>
-            <File>
-              <FileName>fonts.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\fonts.c</FilePath>
-            </File>
-            <File>
-              <FileName>ILI9341.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\ILI9341.c</FilePath>
-            </File>
-            <File>
-              <FileName>ILI9341_DRIVER.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\ILI9341_DRIVER.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
