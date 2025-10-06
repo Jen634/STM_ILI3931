@@ -26,4 +26,7 @@ tft_stm32\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 tft_stm32\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 tft_stm32\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 tft_stm32\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h
+tft_stm32\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 tft_stm32\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+tft_stm32\main.o: ../Core/Inc/Displaytft.h
+tft_stm32\main.o: ../Core/Inc/ili9341.h

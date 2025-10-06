@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
 #include <stdio.h>
+#include "Displaytft.h"
+#include "ili9341.h"
 
 
 /* USER CODE END Includes */
@@ -45,6 +47,9 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -53,166 +58,16 @@ SPI_HandleTypeDef hspi1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// ...existing code...
-// TFT pin helpers and improved SPI helpers
-#define TFT_CS_LOW()    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET)
-#define TFT_CS_HIGH()   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET)
-#define TFT_DC_CMD()    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET)
-#define TFT_DC_DATA()   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET)
-#define TFT_RST_LOW()   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET)
-#define TFT_RST_HIGH()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET)
+// moved display implementation to Core/Src/DisplayTFT.c
 
-static void WriteCMD(uint8_t data){
-  TFT_CS_LOW();
-  TFT_DC_CMD();
-  HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
-  TFT_CS_HIGH();
-}
-
-static void WriteData(uint8_t data){
-  TFT_CS_LOW();
-  TFT_DC_DATA();
-  HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
-  TFT_CS_HIGH();
-}
-
-static void setPos(uint16_t x, uint16_t y, uint16_t w, uint16_t h){
-  WriteCMD(0x2A); // Column Address Set
-  WriteData(x>>8);
-  WriteData(x);
-  WriteData(w>>8);
-  WriteData(w);
-  WriteCMD(0x2B); // Page Address Set
-  WriteData(y>>8);
-  WriteData(y);
-  WriteData(h>>8);
-  WriteData(h);
-}
-
-//RGB565
-
-static void fullDplay(uint16_t color){
-  // Prepare chunk buffer (512 bytes -> 256 pixels) to reduce per-pixel overhead
-  const uint32_t total_pixels = 240UL * 320UL; // 76800
-  const size_t pixels_per_chunk = 256; // adjust to fit stack; 256 pixels => 512 bytes
-  uint8_t buf[pixels_per_chunk * 2];
-  // Fill buffer MSB first (high byte then low byte) as most ILI9341 expect
-  uint8_t lo = (uint8_t)(color >> 8);
-
-  uint8_t hi = (uint8_t)(color & 0xFF);
-  for(size_t i = 0; i < pixels_per_chunk; ++i){
-    buf[i*2] = hi;
-    buf[i*2 + 1] = lo;
-  }
-
-  setPos(0,0,239,319);
-  WriteCMD(0x2C); // Memory write
-
-  TFT_CS_LOW();
-  TFT_DC_DATA();
-
-  uint32_t remaining = total_pixels;
-  while(remaining){
-    size_t to_send_pixels = (remaining > pixels_per_chunk) ? pixels_per_chunk : remaining;
-    size_t to_send_bytes = to_send_pixels * 2;
-    HAL_StatusTypeDef st = HAL_SPI_Transmit(&hspi1, buf, to_send_bytes, 1000);
-    if(st != HAL_OK){
-      // If transfer fails, release CS and abort to avoid locking the bus
-      TFT_CS_HIGH();
-      return;
-    }
-    remaining -= to_send_pixels;
-  }
-
-  TFT_CS_HIGH();
-}
-// helper: send command + optional data in one SPI transaction and optional delay
-static HAL_StatusTypeDef sendCommandWithData(uint8_t cmd, const uint8_t *data, size_t len, uint32_t delay_ms){
-  HAL_StatusTypeDef st = HAL_OK;
-  TFT_CS_LOW();
-  TFT_DC_CMD();
-  st = HAL_SPI_Transmit(&hspi1, &cmd, 1, 1000);
-  if(st != HAL_OK){
-    TFT_CS_HIGH();
-    return st;
-  }
-  if(len && data){
-    TFT_DC_DATA();
-    st = HAL_SPI_Transmit(&hspi1, (uint8_t*)data, len, 1000);
-  }
-  TFT_CS_HIGH();
-  if(delay_ms) HAL_Delay(delay_ms);
-  return st;
-}
-
-void InitTFT(void){
-  // Reset sequence (active low)
-  TFT_RST_LOW();
-  HAL_Delay(20);
-  TFT_RST_HIGH();
-  HAL_Delay(200);
-
-  // Basic commands
-  sendCommandWithData(0x01, NULL, 0, 0);
-  sendCommandWithData(0x11, NULL, 0, 200);
-
-  // Table-driven init sequence for readability and maintainability
-  typedef struct {
-    uint8_t cmd;
-    const uint8_t *data;
-    uint8_t len;
-    uint16_t delay_ms;
-  } init_cmd_t;
-
-  static const uint8_t b2_1[] = {0x01,0x2C,0x2D};
-  static const uint8_t b3_1[] = {0x01,0x2C,0x2D};
-  static const uint8_t b4_1[] = {0x07};
-  static const uint8_t a2_1[] = {0x02,0x84};
-  static const uint8_t c2_1[] = {0x0A,0x00};
-  static const uint8_t c3_1[] = {0x8A,0x2A};
-  static const uint8_t c4_1[] = {0x8A,0xEE};
-  static const uint8_t c5_1[] = {0x0E};
-  static const uint8_t e0_1[] = {0x02,0x1C,0x07,0x12,0x37,0x32,0x29,0x2D,0x29,0x25,0x2B,0x39,0x00,0x01,0x03,0x10};
-  static const uint8_t e1_1[] = {0x03,0x1D,0x07,0x06,0x2E,0x2C,0x29,0x2D,0x2E,0x2E,0x37,0x3F,0x00,0x00,0x02,0x10};
-
-  const init_cmd_t init_cmds[] = {
-    {0x01, NULL,    0,    5},   // Software reset
-    {0x11, NULL,    0,  200},   // Sleep out
-    {0xB2, b2_1,    sizeof(b2_1), 0},
-    {0xB2, b2_1,    sizeof(b2_1), 0},
-    {0xB3, b3_1,    sizeof(b3_1), 0},
-    {0xB2, b2_1,    sizeof(b2_1), 0},
-    {0xB4, b4_1,    sizeof(b4_1), 0},
-    {0xC0, NULL,    0,    0},
-    {0xA2, a2_1,    sizeof(a2_1), 0},
-    {0xC1, NULL,    0,    0},
-    {0xC5, NULL,    0,    0},
-    {0xC2, c2_1,    sizeof(c2_1), 0},
-    {0xC3, c3_1,    sizeof(c3_1), 0},
-    {0xC4, c4_1,    sizeof(c4_1), 0},
-    {0xC5, c5_1,    sizeof(c5_1), 0},
-    {0xE0, e0_1,    sizeof(e0_1), 0},
-    {0xE1, e1_1,    sizeof(e1_1), 0},
-    {0x36, (uint8_t[]){0x08}, 1, 0},
-    {0x3A, (uint8_t[]){0x05}, 1, 0}, // 16-bit/pixel
-    {0x20, NULL,    0,    0},
-    {0x29, NULL,    0,  100}, // Display ON
-  };
-
-  const size_t init_count = sizeof(init_cmds) / sizeof(init_cmds[0]);
-  for(size_t i = 0; i < init_count; ++i){
-    const init_cmd_t *c = &init_cmds[i];
-    sendCommandWithData(c->cmd, c->data, c->len, c->delay_ms);
-  }
-
-  setPos(0,0,239,319);
-}
 
 /* USER CODE END 0 */
 
@@ -246,9 +101,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET); // DC high
-  InitTFT();
+  ILI9341_Init();
 
   /* USER CODE END 2 */
 
@@ -260,7 +117,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    fullDplay(0xF800); // Red
+    ILI9341_FillScreen(0xF800); // Red
     HAL_Delay(500);
 
 
@@ -330,8 +187,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  // increase SPI speed to PRESCALER_2 for less transfer time (if board/clock supports)
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -343,6 +199,72 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
 
 }
 
@@ -370,8 +292,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  // set GPIO speed higher to support faster SPI toggling
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */

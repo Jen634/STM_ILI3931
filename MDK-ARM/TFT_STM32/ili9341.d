@@ -1,5 +1,6 @@
-tft_stm32\ili9341.o: ILI9341.c
-tft_stm32\ili9341.o: ILI9341_DRIVER.h
+tft_stm32\ili9341.o: ..\Core\Src\ili9341.c
+tft_stm32\ili9341.o: ../Core/Inc/ili9341.h
+tft_stm32\ili9341.o: ../Core/Inc/main.h
 tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 tft_stm32\ili9341.o: ../Core/Inc/stm32f1xx_hal_conf.h
 tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h
@@ -26,5 +27,5 @@ tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h
-tft_stm32\ili9341.o: ILI9341.h
-tft_stm32\ili9341.o: fonts.h
+tft_stm32\ili9341.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+tft_stm32\ili9341.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
