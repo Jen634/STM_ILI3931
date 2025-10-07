@@ -67,16 +67,12 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// moved display implementation to Core/Src/DisplayTFT.c
-//extern uint8_t rx_byte; // received byte
-	void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart == &huart1)
-      //  UARTDisplay_PushLine((char*)&rx_byte);  // hoặc đẩy vào buffer
-       // HAL_UART_Receive_IT(&huart1, &rx_byte, 1); // gọi lại để nhận tiếp
-        UARTDisplay_RxCplt();
+  if (huart == &huart1)
+    UARTDisplay_RxCplt();
 }
-  extern void showUARTLine(const char *line); // in DisplayTFT.c
 
 /* USER CODE END 0 */
 
@@ -118,10 +114,9 @@ int main(void)
   UARTDisplay_Init(&huart1);         // start RX IT trên huart1
   UARTDisplay_SetLineCallback(showUARTLine); // đăng ký callback
   
-  ILI9341_FillScreen(0x0000); // �? den
-  ILI9341_DrawPixel(10, 10, 0xF800); // �?
-  ILI9341_DrawPixel(20, 20, 0xFFE0); // Xanh l�
-  //ILI9341_DrawCircle(100, 100, 50, 0xFFFF); // Vẽ hình tròn màu trắng
+  ILI9341_FillScreen(0x0000); // Đen
+  ILI9341_DrawPixel(10, 10, 0xF800); // Đỏ
+  ILI9341_DrawPixel(20, 20, 0xFFE0); // Vàng
   ILI9341_DrawFilledCircle(200, 200, 30, 0x07E0); // Vẽ hình tròn rỗng màu xanh lá
   /* USER CODE END 2 */
 
@@ -132,13 +127,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-   // UARTDisplay_PushLine("HELLO TEST");
-    UARTDisplay_Process(); // sẽ gọi my_line_handler() cho mỗi dòng có sẵn
+   
+    UARTDisplay_Process(); 
     HAL_Delay(1000);
-
-  //  HAL_Delay(500);
-
-
   }
   /* USER CODE END 3 */
 }

@@ -145,6 +145,7 @@ void ILI9341_DrawText(const char* str, const uint8_t font[], uint16_t X, uint16_
 }
 
 void showUARTLine(const char *line) {
+	
     ILI9341_DrawFilledCircle(100, 100, 100,0xFFFF);
     ILI9341_DrawText(line, FONT1, 100, 100, 0x07E0, 0xFFE0);
 }

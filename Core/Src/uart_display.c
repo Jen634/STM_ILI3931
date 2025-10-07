@@ -58,7 +58,7 @@ void UARTDisplay_SetLineCallback(void (*cb)(const char *line))
     g_line_cb = cb;
 }
 
-// Must be called from main loop
+
 void UARTDisplay_Process(void)
 {
     while(q_count) {
@@ -68,7 +68,7 @@ void UARTDisplay_Process(void)
         q_count--;
         __enable_irq();
         if(g_line_cb) g_line_cb(ln);
-        // clear slot after callback if desired
+        // clear slot after callback 
     }
 }
 
@@ -92,7 +92,7 @@ void UARTDisplay_RxCplt(void)
 {
     HAL_UART_Transmit(g_huart,(uint8_t*) &rx_byte, 1, 10);
     char ch = (char)rx_byte;
-    // Accept printable ASCII and CR/LF
+  
     if(ch == '\r' || ch == '\n' || ch == ';') {
         if(line_pos > 0) {
             // terminate and enqueue
@@ -105,11 +105,10 @@ void UARTDisplay_RxCplt(void)
         if(line_pos < (UDL_LINE_BUFSZ - 1)) {
             line_buf[line_pos++] = ch;
         }
-        // else overflow: drop extra chars
+       
     }
     // restart reception
     udl_start_rx();
 }
 
-// Helper: the user's HAL_UART_RxCpltCallback can do:
-// if(huart == &huart1) UARTDisplay_RxCplt();
+

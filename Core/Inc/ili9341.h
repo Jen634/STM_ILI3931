@@ -21,7 +21,8 @@
 
 #define ILI9341_RST_PORT  GPIOB
 #define ILI9341_RST_PIN   GPIO_PIN_10
-
+// Common colors
+#define FONT1	Arial_Narrow8x12
 // Basic API
 void ILI9341_Init(void);
 void ILI9341_SetRotation(uint8_t m);
@@ -34,7 +35,6 @@ void ILI9341_DrawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t heig
 void ILI9341_WriteCmd(uint8_t cmd);
 void ILI9341_WriteData(uint8_t* buff, uint16_t len);
 
-#define FONT1	Arial_Narrow8x12
-
 extern const uint8_t Arial_Narrow8x12[];
+
 #endif // ILI9341_H
