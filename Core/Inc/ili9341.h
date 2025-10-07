@@ -38,3 +38,4 @@ void ILI9341_WriteData(uint8_t* buff, uint16_t len);
 extern const uint8_t Arial_Narrow8x12[];
 
 #endif // ILI9341_H
+

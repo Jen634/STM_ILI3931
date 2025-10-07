@@ -31,3 +31,4 @@ int UARTDisplay_PushLine(const char *line);
 void UARTDisplay_RxCplt(void);
 
 #endif // UART_DISPLAY_H
+
