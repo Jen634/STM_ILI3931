@@ -28,9 +28,13 @@ void ILI9341_SetRotation(uint8_t m);
 void ILI9341_FillScreen(uint16_t color);
 void ILI9341_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
+void ILI9341_DrawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
 
 // Lower level helpers (optional)
 void ILI9341_WriteCmd(uint8_t cmd);
 void ILI9341_WriteData(uint8_t* buff, uint16_t len);
 
+#define FONT1	Arial_Narrow8x12
+
+extern const uint8_t Arial_Narrow8x12[];
 #endif // ILI9341_H

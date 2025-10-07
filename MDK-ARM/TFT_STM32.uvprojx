@@ -428,6 +428,16 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f1xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>uart_display.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\uart_display.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_display.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\Inc\uart_display.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

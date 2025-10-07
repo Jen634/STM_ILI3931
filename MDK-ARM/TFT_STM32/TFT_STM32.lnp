@@ -5,6 +5,7 @@
 "tft_stm32\main.o"
 "tft_stm32\stm32f1xx_it.o"
 "tft_stm32\stm32f1xx_hal_msp.o"
+"tft_stm32\uart_display.o"
 "tft_stm32\stm32f1xx_hal_gpio_ex.o"
 "tft_stm32\stm32f1xx_hal_spi.o"
 "tft_stm32\stm32f1xx_hal.o"
