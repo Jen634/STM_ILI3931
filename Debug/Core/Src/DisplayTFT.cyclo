@@ -1,0 +1,7 @@
+../Core/Src/DisplayTFT.c:10:6:InitTFT	1
+../Core/Src/DisplayTFT.c:15:6:fullDplay	1
+../Core/Src/DisplayTFT.c:21:6:ILI9341_DrawCircle	3
+../Core/Src/DisplayTFT.c:52:6:ILI9341_DrawFilledCircle	3
+../Core/Src/DisplayTFT.c:69:6:ILI9341_DrawChar	11
+../Core/Src/DisplayTFT.c:115:6:ILI9341_DrawText	3
+../Core/Src/DisplayTFT.c:143:6:showUARTLine	1
