@@ -1,0 +1,8 @@
+#ifndef LOGO_EAUT_H
+#define LOGO_EAUT_H
+
+#include "lvgl.h"
+
+extern const lv_image_dsc_t Logo_EAUT;
+
+#endif

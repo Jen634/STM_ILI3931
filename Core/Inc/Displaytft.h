@@ -25,6 +25,9 @@ void ILI9341_DrawChar(char ch, const uint8_t font[], uint16_t X, uint16_t Y, uin
 
 void ILI9341_DrawText(const char* str, const uint8_t font[], uint16_t X, uint16_t Y, uint16_t color, uint16_t bgcolor);
 
+
+void TFT_DrawLayout(void);
+
 #ifdef __cplusplus
 }
 #endif

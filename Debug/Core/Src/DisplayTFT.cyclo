@@ -5,3 +5,5 @@
 ../Core/Src/DisplayTFT.c:69:6:ILI9341_DrawChar	11
 ../Core/Src/DisplayTFT.c:115:6:ILI9341_DrawText	3
 ../Core/Src/DisplayTFT.c:143:6:showUARTLine	1
+../Core/Src/DisplayTFT.c:164:6:ClearScreen	2
+../Core/Src/DisplayTFT.c:182:6:TFT_DrawLayout	1

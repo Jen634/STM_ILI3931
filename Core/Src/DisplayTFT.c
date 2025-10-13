@@ -142,7 +142,62 @@ void ILI9341_DrawText(const char* str, const uint8_t font[], uint16_t X, uint16_
 
 void showUARTLine(const char *line) {
 	
-    ILI9341_DrawFilledCircle(100, 100, 100,000000);
-    ILI9341_DrawText(line, FONT3, 100, 100, 0xFFFF, 000000); // Green text on yellow background
+ //   ILI9341_DrawFilledCircle(100, 100, 100,000000);
+	//ILI9341_DrawRectangle(0, 0, 320, 240, 0xFFFF); // White rectangle
+
+   // ILI9341_DrawText(line, FONT2, 10, 10, 0x0000, 0xFFFF);
+	 // Green text on yellow background
+	//ILI9341_FillRect(0, 0, 220, 240, 0xCFEB); // blue background
+   // ILI9341_FillRect(0, 0, 220, 240, 0xFFFF); // white border
+    ILI9341_DrawText(line,FONT2, 20, 30, 0x0000, 0xFFFF);
+	
+    // Vẽ vùng góc la bàn
+    ILI9341_FillRect(220, 0, 100, 120, 0xCFEB);
+    ILI9341_FillRect(220, 0, 100, 120, 0xFFFF);
+   // ILI9341_DrawText(data33, FONT2, 230, 30, 0xFFFF, 0xCFEB);
+
+    // Vẽ vùng báo relay
+    ILI9341_FillRect(220, 120, 100, 120, 0xCFEB);
+    ILI9341_FillRect(220, 120, 100, 120, 0xFFFF);
+  
 }
+void ClearScreen(const char *line)
+{
+    if (strcmp(line, "clear") == 0)
+    {
+        fullDplay(0xFFFF); // White
+        return;
+    }
+	else {
+		showUARTLine(line);
+	}
+}
+
+char data22[] = "log, World!";
+
+char data33[] = "la ban, World!";
+
+char data44[] = "relay, World!";
+
+void TFT_DrawLayout(void)
+{
+    // Nền toàn màn hình
+   // ILI9341_FillScreen(0xFFFF); // White
+
+    // Vẽ vùng log data
+    ILI9341_FillRect(0, 0, 220, 240, 0xCFEB); // blue background
+    ILI9341_FillRect(0, 0, 220, 240, 0xFFFF); // white border
+    ILI9341_DrawText(data22,FONT2, 20, 30, 0xFFFF, 0x0000);
+	
+    // Vẽ vùng góc la bàn
+    ILI9341_FillRect(220, 0, 100, 120, 0xCFEB);
+    ILI9341_FillRect(220, 0, 100, 120, 0xFFFF);
+    ILI9341_DrawText(data33, FONT2, 230, 30, 0xFFFF, 0xCFEB);
+
+    // Vẽ vùng báo relay
+    ILI9341_FillRect(220, 120, 100, 120, 0xCFEB);
+    ILI9341_FillRect(220, 120, 100, 120, 0xFFFF);
+    ILI9341_DrawText(data44,FONT2, 225, 160, 0xFFFF, 0xCFEB);
+}
+
 

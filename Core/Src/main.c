@@ -24,12 +24,8 @@
 #include "stdint.h"
 #include <stdio.h>
 #include "Displaytft.h"
-#include "ili9341.h"
+#include "ili9341.h" 
 #include "uart_display.h"
-#include "lvgl.h"
-#include "tft_driver.h"
-#include "lv_port_disp.h"
-
 
 
 /* USER CODE END Includes */
@@ -52,6 +48,8 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 
+TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
@@ -65,19 +63,22 @@ static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart == &huart1)
     UARTDisplay_RxCplt();
 }
 
-LV_IMG_DECLARE(Logo_Eaut); // <-- ảnh bạn đã convert
+
 /* USER CODE END 0 */
 
 /**
@@ -112,16 +113,19 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET); // DC high
     ILI9341_Init();
     UARTDisplay_Init(&huart1);         // start RX IT trên huart1
     UARTDisplay_SetLineCallback(showUARTLine); // đăng ký callback
+    UARTDisplay_SetLineCallback(ClearScreen);
 
-    ILI9341_FillScreen(0x0000); // Đen
-    ILI9341_DrawPixel(10, 10, 0xF800); // Đỏ
-    ILI9341_DrawPixel(20, 20, 0xFFE0); // Vàng
-    ILI9341_DrawFilledCircle(200, 200, 30, 0x07E0); // Vẽ hình tròn rỗng màu xanh lá
+    ILI9341_FillScreen(0xFFFF); // White
+   // TFT_DrawLayout();
+    // ILI9341_DrawPixel(10, 10, 0xF800); // Đỏ
+    // ILI9341_DrawPixel(20, 20, 0xFFE0); // Vàng
+    // ILI9341_DrawFilledCircle(200, 200, 30, 0x07E0); // Vẽ hình tròn rỗng màu xanh lá
 
 
   /* USER CODE END 2 */
@@ -136,6 +140,7 @@ int main(void)
 
 	    UARTDisplay_Process();
 	    HAL_Delay(1000);
+    
   }
   /* USER CODE END 3 */
 }
@@ -214,6 +219,51 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 71;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 999;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
@@ -349,3 +399,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+

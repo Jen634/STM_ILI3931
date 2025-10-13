@@ -29,6 +29,7 @@ int UARTDisplay_PushLine(const char *line);
 // UART instance that was passed to UARTDisplay_Init(). Example:
 //   if(huart == &huart1) UARTDisplay_RxCplt();
 void UARTDisplay_RxCplt(void);
+void ClearScreen(const char *line);
 
 #endif // UART_DISPLAY_H
 
